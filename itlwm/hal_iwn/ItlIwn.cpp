@@ -516,8 +516,10 @@ iwn_attach(struct iwn_softc *sc, struct pci_attach_args *pa)
             ieee80211_std_rateset_11a;
     }
     if (sc->sc_flags & IWN_FLAG_HAS_11N) {
-        /* TX is supported with the same MCS as RX. */
+        /* TX is supported up to MCS 0-7. */
         ic->ic_tx_mcs_set = IEEE80211_TX_MCS_SET_DEFINED;
+        if (sc->nrxchains > 1)
+            ic->ic_tx_mcs_set |= IEEE80211_TX_RX_MCS_NOT_EQUAL;
         
         /* Set supported HT rates. */
         ic->ic_sup_mcs[0] = 0xff;        /* MCS 0-7 */
@@ -2712,9 +2714,8 @@ iwn_ampdu_tx_done(struct iwn_softc *sc, struct iwn_tx_ring *txq,
         iwn_mira_choose(sc, ni);
     }
 
-    if (txfail) {
+    if (txfail)
         ieee80211_tx_compressed_bar(ic, ni, tid, ssn);
-    }
     else if (!SEQ_LT(seq, ba->ba_winstart)) {
         /*
          * Move window forward if SEQ lies beyond end of window,
@@ -2775,7 +2776,7 @@ iwn4965_tx_done(struct iwn_softc *sc, struct iwn_rx_desc *desc,
         stat->nframes * sizeof(stat->stat) > len)
         return;
 
-   if (desc->qid < sc->first_agg_txq) {
+    if (desc->qid < sc->first_agg_txq) {
         /* XXX 4965 does not report byte count */
         struct iwn_tx_data *txdata = &ring->data[desc->idx];
         uint16_t framelen = txdata->totlen + IEEE80211_CRC_LEN;
