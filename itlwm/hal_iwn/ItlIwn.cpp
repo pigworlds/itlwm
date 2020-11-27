@@ -516,17 +516,27 @@ iwn_attach(struct iwn_softc *sc, struct pci_attach_args *pa)
             ieee80211_std_rateset_11a;
     }
     if (sc->sc_flags & IWN_FLAG_HAS_11N) {
+        int ntxstreams = sc->ntxchains;
+        int nrxstreams = sc->nrxchains;
+        
         /* TX is supported up to MCS 0-7. */
-        ic->ic_tx_mcs_set = IEEE80211_TX_MCS_SET_DEFINED;
-        if (sc->nrxchains > 1)
-            ic->ic_tx_mcs_set |= IEEE80211_TX_RX_MCS_NOT_EQUAL;
+        ntxstreams = MIN(ntxstreams, 1);
         
         /* Set supported HT rates. */
+        if (ic->ic_userflags & IEEE80211_F_NOMIMO)
+            ntxstreams = nrxstreams = 1;
+
         ic->ic_sup_mcs[0] = 0xff;        /* MCS 0-7 */
-        if (sc->nrxchains > 1)
+        if (nrxstreams > 1)
             ic->ic_sup_mcs[1] = 0xff;    /* MCS 8-15 */
-        if (sc->nrxchains > 2)
+        if (nrxstreams > 2)
             ic->ic_sup_mcs[2] = 0xff;    /* MCS 16-23 */
+
+        ic->ic_tx_mcs_set = IEEE80211_TX_MCS_SET_DEFINED;
+        if (ntxstreams != nrxstreams) {
+            ic->ic_tx_mcs_set |= IEEE80211_TX_RX_MCS_NOT_EQUAL;
+            ic->ic_tx_mcs_set |= (ntxstreams - 1) << 2;
+        }
     }
 
     /* IBSS channel undefined for now. */
