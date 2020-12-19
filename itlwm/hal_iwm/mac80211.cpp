@@ -1072,8 +1072,8 @@ iwm_mira_choose(struct iwm_softc *sc, struct ieee80211_node *ni)
      * any resulting Tx retries to MiRA in order to trigger probing.
      */
     if (best_mcs != ieee80211_mira_get_best_mcs(&in->in_mn)) {
-        in->chosen_txmcs = best_mcs;
-        iwm_setrates(in, 1);
+//        in->chosen_txmcs = best_mcs;
+//        iwm_setrates(in, 1);
     }
 }
 
@@ -1263,10 +1263,10 @@ iwm_tx_fill_cmd(struct iwm_softc *sc, struct iwm_node *in,
         ridx = sc->sc_fixed_ridx;
     } else if (ic->ic_fixed_rate != -1) {
         ridx = sc->sc_fixed_ridx;
-    } else if ((ni->ni_flags & IEEE80211_NODE_HT) &&
-        ieee80211_mira_is_probing(&in->in_mn)) {
-        /* Keep Tx rate constant while mira is probing. */
-        ridx = iwm_mcs2ridx[ni->ni_txmcs];
+//    } else if ((ni->ni_flags & IEEE80211_NODE_HT) &&
+//        ieee80211_mira_is_probing(&in->in_mn)) {
+//        /* Keep Tx rate constant while mira is probing. */
+//        ridx = iwm_mcs2ridx[ni->ni_txmcs];
      } else {
         int i;
         /* Use firmware rateset retry table. */
@@ -2174,7 +2174,7 @@ iwm_run(struct iwm_softc *sc)
     in->in_ni.ni_txrate = 0;
     in->in_ni.ni_txmcs = 0;
     in->chosen_txrate = 0;
-    in->chosen_txmcs = 0;
+    in->chosen_txmcs = 15;
     iwm_setrates(in, 0);
     
     timeout_add_msec(&sc->sc_calib_to, 500);
