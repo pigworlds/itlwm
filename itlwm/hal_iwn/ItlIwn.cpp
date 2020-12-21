@@ -1733,7 +1733,7 @@ iwn_newassoc(struct ieee80211com *ic, struct ieee80211_node *ni, int isnew)
 
     /* Start at lowest available bit-rate, AMRR/MiRA will raise. */
     ni->ni_txrate = 0;
-    ni->ni_txmcs = 0;
+    ni->ni_txmcs = 15;
 
     for (i = 0; i < ni->ni_rates.rs_nrates; i++) {
         rate = ni->ni_rates.rs_rates[i] & IEEE80211_RATE_VAL;
@@ -2286,8 +2286,8 @@ iwn_mira_choose(struct iwn_softc *sc, struct ieee80211_node *ni)
      * Tx at the newly chosen best MCS ends up failing, and then report
      * any resulting Tx retries to MiRA in order to trigger probing.
      */
-    if (best_mcs != ieee80211_mira_get_best_mcs(&wn->mn))
-        iwn_set_link_quality(sc, ni);
+//    if (best_mcs != ieee80211_mira_get_best_mcs(&wn->mn))
+//        iwn_set_link_quality(sc, ni);
 }
 
 void ItlIwn::
@@ -3674,8 +3674,8 @@ iwn_tx(struct iwn_softc *sc, mbuf_t m, struct ieee80211_node *ni)
      * an aggregation queue in which case a fixed Tx rate works around
      * FIFO_UNDERRUN Tx errors.
      */
-    if (tx->id == sc->broadcast_id || ieee80211_mira_is_probing(&wn->mn) ||
-        qid >= sc->first_agg_txq ||
+    if (tx->id == sc->broadcast_id || /*ieee80211_mira_is_probing(&wn->mn) ||
+        qid >= sc->first_agg_txq ||*/
         ic->ic_fixed_mcs != -1 || ic->ic_fixed_rate != -1) {
         /* Group or management frame, or probing, or fixed Tx rate. */
         tx->linkq = 0;
