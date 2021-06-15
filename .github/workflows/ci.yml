@@ -1,0 +1,73 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  BUILD_OUTPUT: 'build/Build/Products/Debug'
+  BUILD_LEGACY_OUTPUT: 'build-legacy/Build/Products/Debug'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: acidanthera/MacKernelSDK
+          path: MacKernelSDK
+
+      - name: Manage Version
+        run: |
+          GIT_SHA="$(git rev-parse --short HEAD)"
+          eval $(grep -m 1 "MODULE_VERSION =" itlwm.xcodeproj/project.pbxproj | tr -d ';' | tr -d '\t' | tr -d " ")
+          echo "SHORT_SHA=$GIT_SHA" >> $GITHUB_ENV
+          echo "ITLWM_VER=$MODULE_VERSION" >> $GITHUB_ENV
+
+      - name: Build itlwm
+        run: xcodebuild -scheme itlwm -configuration Debug -derivedDataPath build GIT_COMMIT=_${SHORT_SHA} | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Build AirportItlwm
+        run: xcodebuild -scheme "AirportItlwm (all)" -configuration Debug -derivedDataPath build GIT_COMMIT=_${SHORT_SHA} | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Build AirportItlwm-legacy
+        run: xcodebuild -scheme "AirportItlwm-legacy" -configuration Debug -derivedDataPath build-legacy GIT_COMMIT=_${SHORT_SHA} | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Pack Artifacts itlwm
+        run: |
+          cd $BUILD_OUTPUT
+            zip -r itlwm-v${ITLWM_VER}-DEBUG-alpha-${SHORT_SHA}.zip itlwm.kext
+          cd -
+
+      - name: Pack Artifacts AirportItlwm
+        run: |
+          cd $BUILD_OUTPUT
+            while read -r tgt ; do
+              zip -r AirportItlwm-${tgt// /_}-v${ITLWM_VER}-DEBUG-alpha-${SHORT_SHA}.zip "$tgt"
+            done < <(find . -mindepth 1 -maxdepth 1 -type d -not -path "*.kext" | cut -c 3-)
+          cd -
+
+      - name: Pack Artifacts AirportItlwm-legacy
+        run: |
+          cd $BUILD_LEGACY_OUTPUT
+            while read -r tgt ; do
+              zip -r AirportItlwm-${tgt// /_}-v${ITLWM_VER}-DEBUG-alpha-${SHORT_SHA}.zip "$tgt"
+            done < <(find . -mindepth 1 -maxdepth 1 -type d -not -path "*.kext" | cut -c 3-)
+          cd -
+
+      - name: Upload to Artifacts itlwm
+        uses: actions/upload-artifact@v2
+        with:
+          name: itlwm
+          path: "${{ env.BUILD_OUTPUT }}/itlwm-*.zip"
+
+      - name: Upload to Artifacts AirportItlwm
+        uses: actions/upload-artifact@v2
+        with:
+          name: AirportItlwm
+          path: "${{ env.BUILD_OUTPUT }}/AirportItlwm-*.zip"
+
+      - name: Upload to Artifacts AirportItlwm-legacy
+        uses: actions/upload-artifact@v2
+        with:
+          name: AirportItlwm-legacy
+          path: "${{ env.BUILD_LEGACY_OUTPUT }}/AirportItlwm-*.zip"
