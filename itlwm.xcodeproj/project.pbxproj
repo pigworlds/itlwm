@@ -2625,7 +2625,6 @@
 					"$(inherited)",
 					USE_APPLE_SUPPLICANT,
 					AIRPORT,
-					"_FORTIFY_SOURCE=0",
 					"__IO80211_TARGET=__MAC_10_12",
 					__PRIVATE_SPI__,
 				);
@@ -2637,7 +2636,7 @@
 					"$(PROJECT_DIR)/itl80211/linux",
 					"$(PROJECT_DIR)/MacKernelSDK/Library/x86_64",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MODULE_NAME = com.zxystd.AirportItlwm;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zxystd.AirportItlwm;
 				PRODUCT_NAME = AirportItlwm;
@@ -2654,7 +2653,6 @@
 				GCC_PREFIX_HEADER = itlwm/PrivateSPI.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"__IO80211_TARGET=__MAC_10_12",
-					"_FORTIFY_SOURCE=0",
 					USE_APPLE_SUPPLICANT,
 					AIRPORT,
 					__PRIVATE_SPI__,
@@ -2668,7 +2666,7 @@
 					"$(PROJECT_DIR)/itl80211/linux",
 					"$(PROJECT_DIR)/MacKernelSDK/Library/x86_64",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MODULE_NAME = com.zxystd.AirportItlwm;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zxystd.AirportItlwm;
 				PRODUCT_NAME = AirportItlwm;
