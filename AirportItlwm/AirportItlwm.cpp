@@ -910,6 +910,7 @@ void AirportItlwm::setPowerStateOn()
     pmPolicyMaker->acknowledgeSetPowerState();
 }
 
+#if __IO80211_TARGET >= __MAC_10_11
 int AirportItlwm::
 outputRaw80211Packet(IO80211Interface *interface, mbuf_t m)
 {
@@ -917,6 +918,7 @@ outputRaw80211Packet(IO80211Interface *interface, mbuf_t m)
     freePacket(m);
     return kIOReturnOutputDropped;
 }
+#endif
 
 UInt32 AirportItlwm::
 hardwareOutputQueueDepth(IO80211Interface *interface)
